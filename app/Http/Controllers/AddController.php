@@ -11,6 +11,7 @@ use App\Models\FormSelect;
 use App\Models\AddImages;
 use App\Models\AdsPersonalInfo;
 use Illuminate\Support\Facades\DB;
+use Nette\Utils\Json;
 
 class AddController extends Controller
 {
@@ -99,20 +100,34 @@ class AddController extends Controller
     }
 
     // Saving Ads - Stage - 2 of 4
-    public function addImageUpload(){       // Under testing phase
-        header('Access-Control_Allow-Origin: *');
-        $target_path =  'public/addImages/';
-        $target_path = $target_path.basename($_FILES['file']['name']);
-        if(move_uploaded_file($_FILES['file']['tmp_name'], $target_path)){
-            header('Content-type: application/json');
-            $data = ['success'=> true, 'message'=> 'Upload and move success'];
-            echo json_encode($data);
+    public function addImageUpload(Request $request){       // Under testing phase
+        $aid = $request->aid;
+        $uid = $request->uid;
+        $image = $request->file('simage');
+
+        // $image = $request->simage;
+        // return response()->json($image);
+
+        $aid = 1;
+        $uid = 1;
+
+        $msg = 'success';
+        foreach ($image as $img)
+        {
+            $addImage = new AddImages();
+            $extension = $img->getClientOriginalExtension();
+            $filename = "image".hexdec(uniqid()).'.'.$extension;
+            $img->move('public/addImages/', $filename);
+            $addImage->user_id= $uid;
+            $addImage->add_id = $aid;
+            $addImage->image_name = $filename;
+            $result = $addImage->save();
+            if(!$result){
+                $msg = "Failed";
+                return response()->json($msg);
+            }
         }
-        else{
-            header('Content-type: application/json');
-            $data = ['success'=>false,'message'=>'There was an error uploading the file, please try again!'];
-            echo json_encode($data);
-        }
+        return response()->json($msg);
     }
     
     // Saving Ads - Stage - 3 of 4
@@ -154,4 +169,64 @@ class AddController extends Controller
             return response()->json([['add_id' => $aid],['user_id' => $uid],['msg' => 'fail']]);
         }
     }
+
+    public function displayAds(){
+
+        
+        $addsList = array();
+
+        $addData = array();
+        $addPersonalInfo = array();
+        $addImage = array();
+        
+        $adds = Adds::select('add_id')->get();
+        foreach ($adds as $key=>$ad) {
+
+            foreach(formData::where('add_id','=',$ad->add_id)->get() as $data){
+                $addData[$key] = $data;
+            }
+
+            foreach(AdsPersonalInfo::where('add_id','=',$ad->add_id)->get() as $data){
+                $addPersonalInfo[$key] = $data;
+            }
+
+            foreach(AddImages::where('add_id','=',$ad->add_id)->get() as $data){
+                $addImage[$key] = $data;
+            }
+
+            $addsList[$key] = [['addData' => $addData],['addPersonalInfo' => $addPersonalInfo],['addImage' => $addImage]];
+        }
+
+        return response()->json($addsList);
+    }
 }
+
+/*
+----+-------------------+
+ID  |   Label           |
+----+-------------------+
+1   |   Year Of make    |
+2   |   Status of car   |
+3   |   Color           |
+4   |   Kilometer       |
+5   |   Price           |
+6   |   Hidden          |
+7   |   Negotiable      |
+----+-------------------+
+
+
+*/
+
+            // $new = Adds::leftJoin('form_data', 'adds.add_id', '=', 'form_data.add_id')
+            //     ->leftJoin('ads_personal_infos', 'adds.add_id', '=', 'ads_personal_infos.add_id')
+            //     ->leftJoin('add_images', 'adds.add_id', '=', 'add_images.add_id')
+            //     ->where('adds.add_id', '=', $ad->add_id)
+            //     ->first();
+
+
+            /*
+            
+            select('form_data_id','form_field_id','main_data')->
+            select('id','phonecode','mobile','city','state','country','area_pin')->
+            select('image_id','image_name')->
+            */
