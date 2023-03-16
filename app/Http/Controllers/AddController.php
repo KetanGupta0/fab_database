@@ -174,7 +174,7 @@ class AddController extends Controller
         $addsList = array();
         $adds = Adds::select('add_id','user_id')->get();
         foreach ($adds as $key=>$ad) {
-            $addData = formData::where('add_id', '=', $ad->add_id)->get();
+            $addData = formData::where('add_id', '=', $ad->add_id)->join('form_fields','form_data.form_field_id','=`    1q`','form_fields.form_field_id')->get();
             $addImage = AddImages::where('add_id', '=', $ad->add_id)->where('user_id','=',$ad->user_id)->get();
             $addHeadings = Adds::where('add_id','=',$ad->add_id)->where('user_id','=',$ad->user_id)->first();
             $addPersonalInfo = AdsPersonalInfo::where('add_id', '=', $ad->add_id)->where('user_id','=',$ad->user_id)->first();
