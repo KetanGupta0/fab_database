@@ -9,6 +9,7 @@ use App\Models\formData;
 use App\Models\Category;
 use App\Models\FormSelect;
 use App\Models\AddImages;
+use App\Models\AdsPersonalInfo;
 use Illuminate\Support\Facades\DB;
 
 class AddController extends Controller
@@ -136,9 +137,21 @@ class AddController extends Controller
         $aid = $request->aid;
         $uid = $request->uid;
         $phonecode = $request->phonecode;
-        $phone = $request->phone;
-        $city = $request->city;
-        $area = $request->area;
-
+        $mobile = $request->mobile;
+        $check = Adds::where('add_id','=',$aid)
+                    ->where('user_id','=',$uid)
+                    ->first();
+        if($check){
+            $adsPersonalInfo = new AdsPersonalInfo();
+            $adsPersonalInfo->add_id = $aid;
+            $adsPersonalInfo->user_id = $uid;
+            $adsPersonalInfo->phonecode = $phonecode;
+            $adsPersonalInfo->mobile = $mobile;
+            $adsPersonalInfo->save();
+            return response()->json([['add_id' => $aid],['user_id' => $uid],['msg' => 'success']]);
+        }
+        else{
+            return response()->json([['add_id' => $aid],['user_id' => $uid],['msg' => 'fail']]);
+        }
     }
 }

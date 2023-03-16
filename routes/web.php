@@ -45,6 +45,7 @@ Route::post('subcategory',[AddController::class,'subCategories']);
 Route::post('partialSave',[AddController::class,'saveAddInfo']);
 Route::post('imageUpload',[AddController::class,'addImageUpload']);
 Route::post('addTitle',[AddController::class,'saveAddTitle']);
+Route::post('post-ads',[AddController::class,'saveAdsFinal']);
 
 //Test Routes
 Route::get('imageUpload',[AddController::class,'addImageUpload']);
@@ -53,3 +54,4 @@ Route::get('showForm',[AddController::class,'showForm']);
 Route::get('subcategory',[AddController::class,'subCategories']);
 Route::get('showAdd',[AddController::class,'showAdds']);
 Route::get('partialSave',[AddController::class,'saveAddInfo']);
+// Route::post('show-add',[AddController::class,'showAdd']);
