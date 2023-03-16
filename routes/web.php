@@ -55,3 +55,4 @@ Route::get('subcategory',[AddController::class,'subCategories']);
 Route::get('showAdd',[AddController::class,'showAdds']);
 Route::get('partialSave',[AddController::class,'saveAddInfo']);
 Route::get('adds',[AddController::class,'displayAds']);
+Route::post('adds',[AddController::class,'displayAds']);

@@ -163,40 +163,28 @@ class AddController extends Controller
             $adsPersonalInfo->phonecode = $phonecode;
             $adsPersonalInfo->mobile = $mobile;
             $adsPersonalInfo->save();
-            return response()->json([['add_id' => $aid],['user_id' => $uid],['msg' => 'success']]);
+            return response()->json(['add_id' => $aid,'user_id' => $uid,'msg' => 'success']);
         }
         else{
-            return response()->json([['add_id' => $aid],['user_id' => $uid],['msg' => 'fail']]);
+            return response()->json(['add_id' => $aid,'user_id' => $uid,'msg' => 'fail']);
         }
     }
 
     public function displayAds(){
-
-        
         $addsList = array();
-
-        $addData = array();
-        $addPersonalInfo = array();
-        $addImage = array();
-        
-        $adds = Adds::select('add_id')->get();
+        $adds = Adds::select('add_id','user_id')->get();
         foreach ($adds as $key=>$ad) {
-
-            foreach(formData::where('add_id','=',$ad->add_id)->get() as $data){
-                $addData[$key] = $data;
-            }
-
-            foreach(AdsPersonalInfo::where('add_id','=',$ad->add_id)->get() as $data){
-                $addPersonalInfo[$key] = $data;
-            }
-
-            foreach(AddImages::where('add_id','=',$ad->add_id)->get() as $data){
-                $addImage[$key] = $data;
-            }
-
-            $addsList[$key] = [['addData' => $addData],['addPersonalInfo' => $addPersonalInfo],['addImage' => $addImage]];
+            $addData = formData::where('add_id', '=', $ad->add_id)->get();
+            $addImage = AddImages::where('add_id', '=', $ad->add_id)->where('user_id','=',$ad->user_id)->get();
+            $addHeadings = Adds::where('add_id','=',$ad->add_id)->where('user_id','=',$ad->user_id)->first();
+            $addPersonalInfo = AdsPersonalInfo::where('add_id', '=', $ad->add_id)->where('user_id','=',$ad->user_id)->first();
+            $addsList[$key] = [
+                'addHeadings' => $addHeadings,
+                'addData' => $addData,
+                'addPersonalInfo' => $addPersonalInfo,
+                'addImage' => $addImage,
+            ];
         }
-
         return response()->json($addsList);
     }
 }
@@ -216,17 +204,3 @@ ID  |   Label           |
 
 
 */
-
-            // $new = Adds::leftJoin('form_data', 'adds.add_id', '=', 'form_data.add_id')
-            //     ->leftJoin('ads_personal_infos', 'adds.add_id', '=', 'ads_personal_infos.add_id')
-            //     ->leftJoin('add_images', 'adds.add_id', '=', 'add_images.add_id')
-            //     ->where('adds.add_id', '=', $ad->add_id)
-            //     ->first();
-
-
-            /*
-            
-            select('form_data_id','form_field_id','main_data')->
-            select('id','phonecode','mobile','city','state','country','area_pin')->
-            select('image_id','image_name')->
-            */
