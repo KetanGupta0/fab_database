@@ -101,10 +101,30 @@ class AddController extends Controller
 
     // Saving Ads - Stage - 2 of 4
     public function addImageUpload(Request $request){       // Under testing phase
+
+       
+    $target_path = "public/addImages/";
+
+    $target_path = $target_path . basename($_FILES['file']['name']);
+ 
+
+    if(move_uploaded_file($_FILES['file']['tmp_name'], $target_path)){
+        header('Content-type: application/json');
+        $data = ['success' => true, 'message' => 'Upload and move success'];
+        echo json_encode($data);
+    }else{
+        header('Content-type: application/json');
+        $data = ['success' => false, 'message' => 'There was an error'];
+        echo json_encode($data);
+    }
+
+    exit;
+
         $aid = $request->aid;
         $uid = $request->uid;
-        $image = $request->file('simage');
-
+        $image = $request->file('name');
+        
+        return response()->json($request);
         // $image = $request->simage;
         // return response()->json($image);
 
@@ -167,6 +187,36 @@ class AddController extends Controller
         }
         else{
             return response()->json(['add_id' => $aid,'user_id' => $uid,'msg' => 'fail']);
+        }
+    }
+
+    public function storeBlobData(Request $request){
+        // $aid = $request->aid;
+        // $uid = $request->uid;
+        $data = $request->img;
+
+        return response()->json($request->image('name'));
+
+        AddImages::insert([
+            // 'add_id' => $aid,
+            // 'user_id' => $uid,
+            'image_name' => $data,
+        ]);
+
+        return response()->json(['message' => 'Blob data stored successfully.']);
+    }
+
+    public function uploadFile(Request $request){
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $path = $file->store('uploads');
+            
+            // Save the file path to the database or do other processing.
+            // You can access the original file name with $file->getClientOriginalName().
+
+            return response()->json(['message' => 'File uploaded successfully.']);
+        } else {
+            return response()->json(['error' => 'No file was uploaded.'], 400);
         }
     }
 
