@@ -101,53 +101,41 @@ class AddController extends Controller
 
     // Saving Ads - Stage - 2 of 4
     public function addImageUpload(Request $request){       // Under testing phase
-
-       
-    $target_path = "public/addImages/";
-
-    $target_path = $target_path . basename($_FILES['file']['name']);
- 
-
-    if(move_uploaded_file($_FILES['file']['tmp_name'], $target_path)){
-        header('Content-type: application/json');
-        $data = ['success' => true, 'message' => 'Upload and move success'];
-        echo json_encode($data);
-    }else{
-        header('Content-type: application/json');
-        $data = ['success' => false, 'message' => 'There was an error'];
-        echo json_encode($data);
-    }
-
-    exit;
-
-        $aid = $request->aid;
-        $uid = $request->uid;
-        $image = $request->file('name');
-        
-        return response()->json($request);
-        // $image = $request->simage;
-        // return response()->json($image);
-
-        $aid = 1;
-        $uid = 1;
-
-        $msg = 'success';
-        foreach ($image as $img)
-        {
-            $addImage = new AddImages();
-            $extension = $img->getClientOriginalExtension();
-            $filename = "image".hexdec(uniqid()).'.'.$extension;
-            $img->move('public/addImages/', $filename);
-            $addImage->user_id= $uid;
-            $addImage->add_id = $aid;
-            $addImage->image_name = $filename;
+        $target_path = "public/addImages/";
+        $target_path = $target_path .rand(100000,999999). basename($_FILES['file']['name']);
+        $addImage = new AddImages();
+        if(move_uploaded_file($_FILES['file']['tmp_name'], $target_path)){
+            header('Content-type: application/json');
+            $addImage->image_name = $target_path;
+            $addImage->flag = 'new';
             $result = $addImage->save();
-            if(!$result){
-                $msg = "Failed";
-                return response()->json($msg);
+            if($result){
+                $nextStep = AddImages::where('flag','=','new')->first();
+                $finalStep = AddImages::find($nextStep->image_id);
+                $finalStep->flag = 'pending';
+                $final_result = $finalStep->update();
+                if(!$final_result){
+                    return response()->json("failed");
+                }
             }
         }
-        return response()->json($msg);
+        return response()->json('success');
+    }
+
+    public function imageAidUid(Request $request){
+        $aid = $request->aid;
+        $uid = $request->uid;
+        $images = AddImages::where('flag','=','pending')->get();
+        foreach($images as $image){
+            $image->user_id= $uid;
+            $image->add_id = $aid;
+            $image->flag = 'done';
+            $result = $image->update();
+            if(!$result){
+                return response()->json('failed');
+            }
+        }
+        return response()->json('success');
     }
     
     // Saving Ads - Stage - 3 of 4
