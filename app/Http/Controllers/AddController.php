@@ -10,8 +10,9 @@ use App\Models\Category;
 use App\Models\FormSelect;
 use App\Models\AddImages;
 use App\Models\AdsPersonalInfo;
+use App\Models\Comment;
 use Illuminate\Support\Facades\DB;
-use Nette\Utils\Json;
+use Illuminate\Support\Facades\Session;
 
 class AddController extends Controller
 {
@@ -225,6 +226,44 @@ class AddController extends Controller
         }
         return response()->json($addsList);
     }
+
+    public function adsComments(Request $request){
+        $request->validate([
+            'comment' => 'required'
+        ],[
+            'comment.required' => 'Comment field must have some message!!'
+        ]);
+        $aid = $request->aid;
+        $uid = $request->uid;
+        $owner = Adds::find($aid);
+        $comment = $request->comment;
+        if($owner->user_id == $uid){
+            Comment::create([
+                'add_id' => $aid,
+                'user_id' => $uid,
+                'owner_id' => $owner->user_id,
+                'comment_msg' => $comment,
+                'commenter' => 'owner',
+            ]);
+        }
+        else{
+            Comment::create([
+                'add_id' => $aid,
+                'user_id' => $uid,
+                'owner_id' => $owner->user_id,
+                'comment_msg' => $comment,
+                'commenter' => 'user',
+            ]);
+        }
+        return response()->json('success');
+    }
+
+    public function displayAdsComments(Request $request){
+        $aid = $request->aid;
+        // $aid = 2;
+        $comments = Comment::where('add_id','=',$aid)->get();
+        return response()->json($comments);
+    }
 }
 
 /*
@@ -239,6 +278,4 @@ class AddController extends Controller
 |6   |   Hidden          |
 |7   |   Negotiable      |
 +----+-------------------+
-
-
 */

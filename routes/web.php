@@ -60,3 +60,7 @@ Route::post('adds',[AddController::class,'displayAds']);
 
 // Route::post('storeImg',[AddController::class,'storeBlobData']);
 Route::post('aiduid',[AddController::class,'imageAidUid']);
+
+Route::post('make-comment',[AddController::class,'adsComments']);
+Route::post('display-comment',[AddController::class,'displayAdsComments']);
+Route::get('display-comment',[AddController::class,'displayAdsComments']);

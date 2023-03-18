@@ -9,6 +9,6 @@ class State extends Model
 {
     use HasFactory;
     public $timestamps = false;
-    private $table = 'states';
-    private $primaryKey = 'id';
+    protected $table = 'states';
+    protected $primaryKey = 'id';
 }

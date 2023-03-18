@@ -9,6 +9,6 @@ class City extends Model
 {
     use HasFactory;
     public $timestamps = false;
-    private $table = 'cities';
-    private $primaryKey = 'id';
+    protected $table = 'cities';
+    protected $primaryKey = 'id';
 }
