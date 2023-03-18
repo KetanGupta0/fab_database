@@ -74,6 +74,13 @@ class AuthController extends Controller
         $request->validate([
             'user_mob' => 'required|numeric',
         ]);
+        $reference = Userlist::where('referral','=',$request->referral)->first();
+        if(!$request->referral==''){
+            if(!$reference){
+                return response()->json('wrongref');
+            }
+        }
+
         $user = Userlist::where('user_mob', '=', $request->user_mob)->first();
         $otp = rand(1000,9999);
         start:
@@ -92,11 +99,15 @@ class AuthController extends Controller
                 $user->user_password = 'Specbits@'.rand(100000,999999);
                 $user->user_code = $otp;
                 $user->referral = $ref;
+                if($reference){
+                    $user->reference = $reference->referral;
+                }
                 $user->save();
                 $data = [$request->phonecode, $request->user_mob, $otp];
                 return response()->json($data);
             }
         }
+        
     }
 
     // One Time Password (OTP) verification process
