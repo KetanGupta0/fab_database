@@ -76,18 +76,26 @@ class AuthController extends Controller
         ]);
         $user = Userlist::where('user_mob', '=', $request->user_mob)->first();
         $otp = rand(1000,9999);
-        if($user){
-            return response()->json('exists');
-        }
-        else{
-            $user = new Userlist();
-            $user->phonecode = $request->phonecode;
-            $user->user_mob = $request->user_mob;
-            $user->user_password = 'Specbits@'.rand(100000,999999);
-            $user->user_code = $otp;
-            $user->save();
-            $data = [$request->phonecode, $request->user_mob, $otp];
-            return response()->json($data);
+        start:
+        $ref = 'fab@'.rand(100000000,999999999);
+        $check = Userlist::where('referral', '=', $ref)->first();
+        if($check){
+            goto start;
+        }else{
+            if($user){
+                return response()->json('exists');
+            }
+            else{
+                $user = new Userlist();
+                $user->phonecode = $request->phonecode;
+                $user->user_mob = $request->user_mob;
+                $user->user_password = 'Specbits@'.rand(100000,999999);
+                $user->user_code = $otp;
+                $user->referral = $ref;
+                $user->save();
+                $data = [$request->phonecode, $request->user_mob, $otp];
+                return response()->json($data);
+            }
         }
     }
 

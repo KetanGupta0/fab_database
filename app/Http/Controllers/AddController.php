@@ -11,6 +11,7 @@ use App\Models\FormSelect;
 use App\Models\AddImages;
 use App\Models\AdsPersonalInfo;
 use App\Models\Comment;
+use App\Models\Userlist;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
@@ -228,11 +229,7 @@ class AddController extends Controller
     }
 
     public function adsComments(Request $request){
-        $request->validate([
-            'comment' => 'required'
-        ],[
-            'comment.required' => 'Comment field must have some message!!'
-        ]);
+        $request->validate(['comment' => 'required'],['comment.required' => 'Comment field must have some message!!']);
         $aid = $request->aid;
         $uid = $request->uid;
         $owner = Adds::find($aid);
@@ -259,10 +256,49 @@ class AddController extends Controller
     }
 
     public function displayAdsComments(Request $request){
+        // Fixed by admin side
+        $CountVal = 20;
+        $pointVal = 10;
+
         $aid = $request->aid;
-        // $aid = 2;
+
+        // Find requested add
+        $count = Adds::find($aid);
+
+        // Point calculation logic
+        $point = $pointVal/$CountVal;
+
+        // Find user from requested add id
+        $add = Adds::find($aid);
+        $user = $add->user_id;
+
+        // Find user from userlist model
+        $point_update = Userlist::find($user);
+
+        // Calculate total views from all adds
+        $views = 0;
+        $users = Adds::where('user_id','=',$user)->get();
+        foreach($users as $usr){
+            $views += $usr->view_count;
+        }
+
+        // Calculate and update actual points
+        $total_points = $views * $point;
+        $point_update->points = $total_points;
+        $point_update->update();
+
+        // 
+        $view_count = (int)($count->view_count + 1);
+        $count->view_count = $view_count;
+        $count->update();
         $comments = Comment::where('add_id','=',$aid)->get();
-        return response()->json($comments);
+        $check = Comment::where('add_id','=',$aid)->first();
+        if($check){
+            return response()->json($comments);
+        }
+        else{
+            return response()->json('blank');
+        }
     }
 }
 

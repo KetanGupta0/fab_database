@@ -9,7 +9,7 @@ class Adds extends Model
 {
     use HasFactory;
     public $timestamps = false;
-    protected $fillable = ['add_status', /* add other fillable attributes here */];
+    protected $fillable = ['add_status', 'view_count'];
     protected $table = 'adds';
     protected $primaryKey = 'add_id';
 }
