@@ -257,8 +257,7 @@ class AddController extends Controller
 
     public function displayAdsComments(Request $request){
         // Fixed by admin side
-        $CountVal = 20;
-        $pointVal = 10;
+        $CountVal = 2;
 
         $aid = $request->aid;
 
@@ -269,9 +268,6 @@ class AddController extends Controller
         $view_count = (int)($count->view_count + 1);
         $count->view_count = $view_count;
         $count->update();
-
-        // Point calculation logic
-        $point = $pointVal/$CountVal;
 
         // Find user from requested add id
         $add = Adds::find($aid);
@@ -288,7 +284,7 @@ class AddController extends Controller
         }
 
         // Calculate and update actual points
-        $total_points = $views * $point;
+        $total_points = $views * $CountVal;
         $point_update->points = $total_points;
         $point_update->update();
 
