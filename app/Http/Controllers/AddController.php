@@ -262,8 +262,13 @@ class AddController extends Controller
 
         $aid = $request->aid;
 
-        // Find requested add
-        $count = Adds::find($aid);
+         // Find requested add
+         $count = Adds::find($aid);
+
+        // Update current views
+        $view_count = (int)($count->view_count + 1);
+        $count->view_count = $view_count;
+        $count->update();
 
         // Point calculation logic
         $point = $pointVal/$CountVal;
@@ -287,11 +292,9 @@ class AddController extends Controller
         $point_update->points = $total_points;
         $point_update->update();
 
-        // 
-        $view_count = (int)($count->view_count + 1);
-        $count->view_count = $view_count;
-        $count->update();
         $comments = Comment::where('add_id','=',$aid)->get();
+
+        //Check if comment is exists or not
         $check = Comment::where('add_id','=',$aid)->first();
         if($check){
             return response()->json($comments);
