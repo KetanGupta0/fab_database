@@ -50,9 +50,7 @@ Route::post('post-ads',[AddController::class,'saveAdsFinal']);
 //Test Routes
 // Route::get('imageUpload',[AddController::class,'addImageUpload']);
 Route::get('newform',[AddController::class,'formFields']);
-Route::get('showForm',[AddController::class,'showForm']);
 Route::get('subcategory',[AddController::class,'subCategories']);
-Route::get('showAdd',[AddController::class,'showAdds']);
 Route::get('partialSave',[AddController::class,'saveAddInfo']);
 Route::get('adds',[AddController::class,'displayAds']);
 Route::post('adds',[AddController::class,'displayAds']);
@@ -67,3 +65,8 @@ Route::get('display-comment',[AddController::class,'displayAdsComments']);
 
 // Transaction Routes
 Route::post('redeem-points',[Transactions::class,'redeemPoints']);
+
+
+// Unknown Routes
+// Route::get('showForm',[AddController::class,'showForm']);
+// Route::get('showAdd',[AddController::class,'showAdds']);

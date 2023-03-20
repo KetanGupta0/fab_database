@@ -48,23 +48,23 @@ class AddController extends Controller
         return response()->json($response);
     }
 
-    public function showForm(Request $request){     // Under development phase
-        // $aid = $request->aid;
-        $aid = 1;
-        $formInfo = formData::where('add_id','=',$aid)->get();
-        return response()->json($formInfo);
-    }
+    // public function showForm(Request $request){     // Under development phase
+    //     // $aid = $request->aid;
+    //     $aid = 1;
+    //     $formInfo = formData::where('add_id','=',$aid)->get();
+    //     return response()->json($formInfo);
+    // }
 
-    public function showAdds(Request $request){     // Under development phase
-        $user_id = 1;
-        $formInfo = array();
-        $adds = Adds::where('user_id','=',$user_id)->get();
-        foreach ($adds as $key => $add) {
-            $formInfo[$key] = formData::where('add_id','=',$add->add_id)->get();
-        }
-        $response = array_merge($adds->toArray(),$formInfo);
-        return response()->json($response);
-    }
+    // public function showAdds(Request $request){     // Under development phase
+    //     $user_id = 1;
+    //     $formInfo = array();
+    //     $adds = Adds::where('user_id','=',$user_id)->get();
+    //     foreach ($adds as $key => $add) {
+    //         $formInfo[$key] = formData::where('add_id','=',$add->add_id)->get();
+    //     }
+    //     $response = array_merge($adds->toArray(),$formInfo);
+    //     return response()->json($response);
+    // }
 
     // Saving Ads - Stage - 1 of 4
     public function saveAddInfo(Request $request){      // Tested and working
