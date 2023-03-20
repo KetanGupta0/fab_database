@@ -301,16 +301,3 @@ class AddController extends Controller
     }
 }
 
-/*
-+----+-------------------+
-|ID  |   Label           |
-+----+-------------------+
-|1   |   Year Of make    |
-|2   |   Status of car   |
-|3   |   Color           |
-|4   |   Kilometer       |
-|5   |   Price           |
-|6   |   Hidden          |
-|7   |   Negotiable      |
-+----+-------------------+
-*/
