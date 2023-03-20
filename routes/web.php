@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AddController;
-use App\Http\Controllers\test;
+use App\Http\Controllers\Transactions;
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
@@ -64,3 +64,6 @@ Route::post('aiduid',[AddController::class,'imageAidUid']);
 Route::post('make-comment',[AddController::class,'adsComments']);
 Route::post('display-comment',[AddController::class,'displayAdsComments']);
 Route::get('display-comment',[AddController::class,'displayAdsComments']);
+
+// Transaction Routes
+Route::post('redeem-points',[Transactions::class,'redeemPoints']);
