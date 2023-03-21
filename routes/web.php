@@ -47,14 +47,8 @@ Route::post('storeImg',[AddController::class,'addImageUpload']);
 Route::post('addTitle',[AddController::class,'saveAddTitle']);
 Route::post('post-ads',[AddController::class,'saveAdsFinal']);
 
-//Test Routes
-// Route::get('imageUpload',[AddController::class,'addImageUpload']);
-Route::get('newform',[AddController::class,'formFields']);
-Route::get('subcategory',[AddController::class,'subCategories']);
-Route::get('partialSave',[AddController::class,'saveAddInfo']);
-Route::get('adds',[AddController::class,'displayAds']);
-Route::post('adds',[AddController::class,'displayAds']);
-
+// Fetch ads
+Route::post('fetch-ads',[AddController::class,'fetchAds']);
 
 // Route::post('storeImg',[AddController::class,'storeBlobData']);
 Route::post('aiduid',[AddController::class,'imageAidUid']);
@@ -66,6 +60,14 @@ Route::get('display-comment',[AddController::class,'displayAdsComments']);
 // Transaction Routes
 Route::post('redeem-points',[Transactions::class,'redeemPoints']);
 
+//Test Routes
+// Route::get('imageUpload',[AddController::class,'addImageUpload']);
+Route::get('newform',[AddController::class,'formFields']);
+Route::get('subcategory',[AddController::class,'subCategories']);
+Route::get('partialSave',[AddController::class,'saveAddInfo']);
+Route::get('adds',[AddController::class,'displayAds']);
+Route::post('adds',[AddController::class,'displayAds']);
+Route::get('fetch-ads',[AddController::class,'fetchAds']);
 
 // Unknown Routes
 // Route::get('showForm',[AddController::class,'showForm']);

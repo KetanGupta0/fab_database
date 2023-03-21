@@ -8,7 +8,7 @@ use App\Models\PointTransaction;
 
 class Transactions extends Controller
 {
-    public function redeemPoints(Request $request){
+    public function redeemPoints(Request $request){     // Under testing phase
         $request->validate([
             'amount' => 'required|numeric',
         ],[
