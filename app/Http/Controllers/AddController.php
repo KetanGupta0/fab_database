@@ -300,43 +300,34 @@ class AddController extends Controller
         }
     }
 
-    public function fetchAds(Request $request){     // Under testing phase
-        $clickedCategoryId = $request->cid;
-
-        // Test category id
-        // $clickedCategoryId = 1;
-
-        // Get all adds that belong to the clicked category and its subcategories
-        $relatedAdds = Adds::whereExists(function ($query) use ($clickedCategoryId) {
-            $query->select(DB::raw(1))
-                ->from('categories as c1')
-                ->join('categories', 'c1.cid', '=', 'categories.cid')
-                ->whereColumn('adds.cat_id', 'categories.cid')
-                ->where(function ($query) use ($clickedCategoryId) {
-                    $query->where('c1.cid', $clickedCategoryId)
-                        ->orWhereExists(function ($query) use ($clickedCategoryId) {
-                            $query->select(DB::raw(1))
-                                ->from('categories as c2')
-                                ->whereColumn('adds.main_cat_id', 'c2.cid')
-                                ->where('c2.cid', $clickedCategoryId);
-                        });
-                });
-        })->get();
-
+    public function fetchAds(Request $request) {
+        $clickedCategoryId = $request->cid;                 // If cid not matched with parent then exit
+        // $clickedCategoryId = 2;
+        $map = array();
         $addsList = array();
-        foreach ($relatedAdds as $key=>$ad) {
-            $addData = formData::where('add_id', '=', $ad->add_id)
-                    ->join('form_fields','form_data.form_field_id','=','form_fields.form_field_id')->get();
-
-            $addImage = AddImages::where('add_id', '=', $ad->add_id)
-                    ->where('user_id','=',$ad->user_id)->get();
-
-            $addHeadings = Adds::where('add_id','=',$ad->add_id)
-                    ->where('user_id','=',$ad->user_id)->first();
-
-            $addPersonalInfo = AdsPersonalInfo::where('add_id', '=', $ad->add_id)
-                    ->where('user_id','=',$ad->user_id)->first();
-
+        $i = 0;
+        $check1 = true;
+        while($check1){
+            $check1 = Category::where('cid','=',$clickedCategoryId)->first();
+            if($check1){
+                $map[$i] = Category::where('parent','=',$clickedCategoryId)->value('cid');
+                $clickedCategoryId = $map[$i];
+                $i++;
+            }
+            else{
+                echo $clickedCategoryId;
+                break;
+            }
+        }
+        if(sizeof($map)<1){
+            return response()->json($addsList);
+        }
+        $adds = Adds::where('cat_id','=',$map[sizeof($map)-2])->get();
+        foreach ($adds as $key=>$ad) {
+            $addData = formData::where('add_id', '=', $ad->add_id)->join('form_fields','form_data.form_field_id','=','form_fields.form_field_id')->get();
+            $addImage = AddImages::where('add_id', '=', $ad->add_id)->where('user_id','=',$ad->user_id)->get();
+            $addHeadings = Adds::where('add_id','=',$ad->add_id)->where('user_id','=',$ad->user_id)->first();
+            $addPersonalInfo = AdsPersonalInfo::where('add_id', '=', $ad->add_id)->where('user_id','=',$ad->user_id)->first();
             $addsList[$key] = [
                 'addHeadings' => $addHeadings,
                 'addData' => $addData,
@@ -345,6 +336,10 @@ class AddController extends Controller
             ];
         }
         return response()->json($addsList);
+
+        // echo 'Map length: '.sizeof($map).'<br>'.'Last cid: '.$map[sizeof($map)-2];
     }
+    
+
 }
 
