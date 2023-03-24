@@ -34,6 +34,7 @@ Route::post('register',[AuthController::class,'registration']);
 Route::post('reset',[AuthController::class,'resetPasswordValidation']);
 Route::post('setpassword',[AuthController::class,'updatePassword']);
 Route::post('verify',[AuthController::class,'verifyOTP']);
+Route::post('complete-profile',[AuthController::class,'profileComplition']);
 
 // Categories and subcategories
 Route::get('country',[AuthController::class,'countryCode']);
@@ -68,6 +69,7 @@ Route::get('partialSave',[AddController::class,'saveAddInfo']);
 Route::get('adds',[AddController::class,'displayAds']);
 Route::post('adds',[AddController::class,'displayAds']);
 Route::get('fetch-ads',[AddController::class,'fetchAds']);
+Route::get('test',[AddController::class,'test']);
 
 // Unknown Routes
 // Route::get('showForm',[AddController::class,'showForm']);
