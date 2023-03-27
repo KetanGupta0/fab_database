@@ -84,7 +84,7 @@ class AddController extends Controller
     }
 
     // Saving Ads - Stage - 2 of 4
-    public function addImageUpload(Request $request){       // Under testing phase
+    public function addImageUpload(Request $request){       // Tested and working
         $target_path = "public/addImages/";
         $target_path = $target_path .rand(100000,999999). basename($_FILES['file']['name']);
         $addImage = new AddImages();
@@ -214,76 +214,68 @@ class AddController extends Controller
         $request->validate(['comment' => 'required'],['comment.required' => 'Comment field must have some message!!']);
         $aid = $request->aid;
         $uid = $request->uid;
-        $owner = Adds::find($aid);
-        $comment = $request->comment;
-        if($owner->user_id == $uid){
-            Comment::create([
-                'add_id' => $aid,
-                'user_id' => $uid,
-                'owner_id' => $owner->user_id,
-                'comment_msg' => $comment,
-                'commenter' => 'owner',
-            ]);
+        $oid = $request->oid;
+        $msg = $request->comment;
+        
+        if($uid == $oid){
+            return response()->json('You are not allowed');
+        }
+
+        $comment = new Comment();
+
+        $comment->add_id = $aid;
+        $comment->owner_id = $oid;
+        $comment->comment_msg = $msg;
+        $comment->comment_from = $uid;
+        $comment->comment_to = $oid;
+        $result = $comment->save();
+
+        if($result){
+            return response()->json('success');
         }
         else{
-            Comment::create([
-                'add_id' => $aid,
-                'user_id' => $uid,
-                'owner_id' => $owner->user_id,
-                'comment_msg' => $comment,
-                'commenter' => 'user',
-            ]);
+            return response()->json('fail');
         }
-        return response()->json('success');
+
     }
 
     public function displayAdsComments(Request $request){
-        // Fixed by admin side
-        $CountVal = 2;
-
         $aid = $request->aid;
 
-         // Find requested add
-         $count = Adds::find($aid);
-
-        // Update current views
-        $view_count = (int)($count->view_count + 1);
-        $count->view_count = $view_count;
-        $count->update();
-
-        // Find user from requested add id
-        $add = Adds::find($aid);
-        $user = $add->user_id;
-
-        // Find user from userlist model
-        $point_update = Userlist::find($user);
-
-        // Calculate total views from all adds
-        $views = 0;
-        $users = Adds::where('user_id','=',$user)->get();
-        foreach($users as $usr){
-            $views += $usr->view_count;
-        }
-
-        // Calculate and update actual points
-        $total_points = $views * $CountVal;
-        $point_update->points = $total_points;
-        $point_update->update();
-
+        $comment = [];
         $comments = Comment::where('add_id','=',$aid)->get();
-
-        //Check if comment is exists or not
-        $check = Comment::where('add_id','=',$aid)->first();
-        if($check){
-            return response()->json($comments);
+        foreach($comments as $cmt){
+            $name = Userlist::find($cmt->comment_from);
+            if($cmt->owner_id == $cmt->comment_from){
+                array_push($comment,[
+                    'username' => $name->user_name,
+                    'comment_id' => $cmt->id,
+                    'add_id' => $cmt->add_id,
+                    'owner_id' => $cmt->owner_id,
+                    'comment_msg' => $cmt->comment_msg,
+                    'commenter' => 'owner',
+                    'created_at' => $cmt->created_at,
+                    'updated_at' => $cmt->updated_at,
+                ]);
+            }
+            else{
+                array_push($comment,[
+                    'username' => $name->user_name,
+                    'comment_id' => $cmt->id,
+                    'add_id' => $cmt->add_id,
+                    'owner_id' => $cmt->owner_id,
+                    'comment_msg' => $cmt->comment_msg,
+                    'commenter' => 'user',
+                    'created_at' => $cmt->created_at,
+                    'updated_at' => $cmt->updated_at,
+                ]);
+            }
         }
-        else{
-            return response()->json('blank');
-        }
+        return response()->json($comment);
     }
 
     public function fetchAds(Request $request) {
-        $clickedCategoryId = $request->cid;                 // If cid not matched with parent then exit
+        $clickedCategoryId = $request->cid;
         $clickedCategoryId = 1;
         $map = array();
         $addsList = array();
@@ -319,6 +311,34 @@ class AddController extends Controller
         }
         return response()->json($addsList);
 
+    }
+
+    public function fetchAdsComments(Request $request){
+        $aid = $request->aid;
+        $uid = $request->uid;
+        $oid = $request->oid;
+        $comments = Comment::where('add_id','=',$aid)
+                            ->where('user_id','=',$uid)->get();
+        $data=[];
+        foreach($comments as $cmt){
+            $username = Userlist::where('user_id','=',$cmt->user_id)->first();
+            if($cmt->user_id == $cmt->owner_id){
+                array_push($data,[
+                    'sender' => 'admin',
+                    'comment' => $cmt->comment_msg,
+                    'username' => $username->user_name,
+                ]);
+            }
+            else{
+                array_push($data,[
+                    'sender' => 'user',
+                    'comment' => $cmt->comment_msg,
+                    'username' => $username->user_name,
+                ]);
+            }
+        }
+
+        return response()->json($data);
     }
 
     public function demo(){
