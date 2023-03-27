@@ -241,34 +241,78 @@ class AddController extends Controller
 
     public function displayAdsComments(Request $request){
         $aid = $request->aid;
+        $uid = $request->uid;
 
         $comment = [];
         $comments = Comment::where('add_id','=',$aid)->get();
+
+        $add = Adds::find($aid);
+        $naam = Userlist::find($uid);
+
+        if($add->user_id == $uid){      // If user is owner
+            foreach($comments as $cmt){
+                $name = Userlist::find($cmt->comment_from);
+                if($cmt->add_id == $aid){
+                    if($cmt->comment_from == $cmt->owner_id){
+                        array_push($comment,[
+                            'username' => $name->user_name,
+                            'comment_id' => $cmt->id,
+                            'add_id' => $cmt->add_id,
+                            'owner_id' => $cmt->owner_id,
+                            'comment_msg' => $cmt->comment_msg,
+                            'commenter' => 'owner',
+                            'user_id' => $cmt->comment_from,
+                            'created_at' => $cmt->created_at,
+                            'updated_at' => $cmt->updated_at,
+                        ]);
+                    }else{
+                        array_push($comment,[
+                            'username' => $name->user_name,
+                            'comment_id' => $cmt->id,
+                            'add_id' => $cmt->add_id,
+                            'owner_id' => $cmt->owner_id,
+                            'comment_msg' => $cmt->comment_msg,
+                            'commenter' => 'user',
+                            'user_id' => $cmt->comment_from,
+                            'created_at' => $cmt->created_at,
+                            'updated_at' => $cmt->updated_at,
+                        ]);
+                    }
+                }
+            }
+            return response()->json($comment);
+        }
         foreach($comments as $cmt){
             $name = Userlist::find($cmt->comment_from);
             if($cmt->owner_id == $cmt->comment_from){
-                array_push($comment,[
-                    'username' => $name->user_name,
-                    'comment_id' => $cmt->id,
-                    'add_id' => $cmt->add_id,
-                    'owner_id' => $cmt->owner_id,
-                    'comment_msg' => $cmt->comment_msg,
-                    'commenter' => 'owner',
-                    'created_at' => $cmt->created_at,
-                    'updated_at' => $cmt->updated_at,
-                ]);
+                if($uid == $cmt->comment_to){
+                    array_push($comment,[
+                        'username' => $name->user_name,
+                        'comment_id' => $cmt->id,
+                        'add_id' => $cmt->add_id,
+                        'owner_id' => $cmt->owner_id,
+                        'comment_msg' => $cmt->comment_msg,
+                        'commenter' => 'owner',
+                        'user_id' => $cmt->comment_from,
+                        'created_at' => $cmt->created_at,
+                        'updated_at' => $cmt->updated_at,
+                    ]);
+                }
             }
             else{
-                array_push($comment,[
-                    'username' => $name->user_name,
-                    'comment_id' => $cmt->id,
-                    'add_id' => $cmt->add_id,
-                    'owner_id' => $cmt->owner_id,
-                    'comment_msg' => $cmt->comment_msg,
-                    'commenter' => 'user',
-                    'created_at' => $cmt->created_at,
-                    'updated_at' => $cmt->updated_at,
-                ]);
+                if($uid == $cmt->comment_from){
+                    array_push($comment,[
+                        'username' => $name->user_name,
+                        'comment_id' => $cmt->id,
+                        'add_id' => $cmt->add_id,
+                        'owner_id' => $cmt->owner_id,
+                        'comment_msg' => $cmt->comment_msg,
+                        'commenter' => 'user',
+                        'user_id' => $cmt->comment_from,
+                        'created_at' => $cmt->created_at,
+                        'updated_at' => $cmt->updated_at,
+                    ]);
+                }
             }
         }
         return response()->json($comment);
@@ -317,23 +361,29 @@ class AddController extends Controller
         $aid = $request->aid;
         $uid = $request->uid;
         $oid = $request->oid;
-        $comments = Comment::where('add_id','=',$aid)
-                            ->where('user_id','=',$uid)->get();
+        
+        $comment =  Comment::get();
+        
         $data=[];
-        foreach($comments as $cmt){
-            $username = Userlist::where('user_id','=',$cmt->user_id)->first();
-            if($cmt->user_id == $cmt->owner_id){
+
+        foreach($comment as $cmt){
+            $username = Userlist::find($uid);
+            if($cmt->comment_from == $cmt->owner_id){
                 array_push($data,[
-                    'sender' => 'admin',
+                    'commenter' => 'owner',
                     'comment' => $cmt->comment_msg,
                     'username' => $username->user_name,
+                    'created_at' => $cmt->created_at,
+                    'updated_at' => $cmt->updated_at,
                 ]);
             }
             else{
                 array_push($data,[
-                    'sender' => 'user',
+                    'commenter' => 'user',
                     'comment' => $cmt->comment_msg,
                     'username' => $username->user_name,
+                    'created_at' => $cmt->created_at,
+                    'updated_at' => $cmt->updated_at,
                 ]);
             }
         }
@@ -341,34 +391,32 @@ class AddController extends Controller
         return response()->json($data);
     }
 
-    public function demo(){
-        $cid = 1;
-        $arr = array();
-        $i = 0;
-        
-        $cats = Category::where('parent','=',$cid)->get();
-        foreach($cats as $key=>$cat){
-            echo $cat->title.', ';
-            $arr[$key]=$cat->parent;
+    public function replyAdsComments(Request $request){
+        $request->validate(['comment' => 'required'],['comment.required' => 'Comment field must have some message!!']);
+        $aid = $request->aid;
+        $uid = $request->uid;
+        $oid = $request->id;
+        $msg = $request->comment;
+
+        $add = Adds::find($aid);
+
+        if($add->user_id != $oid){
+            return response()->json('You are not allowed!');
         }
 
-        foreach($arr as $key=>$cat){
-            $cat = Category::where()->get();
-            echo $cat->title.', ';
-            $arr[$key]=$cat->parent;
+        $new = new Comment();
+
+        $new->add_id = $aid;
+        $new->owner_id = $oid;
+        $new->comment_msg = $msg;
+        $new->comment_to = $uid;
+        $new->comment_from = $oid;
+        $result = $new->save();
+        if($result){
+            return response()->json('success');
         }
-    }
-
-    public function test(){
-        $cid = 1;
-
-        start:
-        $cats = Category::where('parent','=',$cid)->get();
-
-        foreach($cats as $cat){
-            echo $cat->title.'-('.$cat->cid.')<br/>';
-            $cid = $cat->cid;
-            goto start;
+        else{
+            return response()->json('fail');
         }
     }
 }

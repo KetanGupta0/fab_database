@@ -58,6 +58,7 @@ Route::post('aiduid',[AddController::class,'imageAidUid']);
 Route::post('make-comment',[AddController::class,'adsComments']);
 Route::post('display-comment',[AddController::class,'displayAdsComments']);
 Route::post('fetch-comment',[AddController::class,'fetchAdsComments']);
+Route::post('reply-comment',[AddController::class,'replyAdsComments']);
 
 // Transaction Routes
 Route::post('redeem-points',[Transactions::class,'redeemPoints']);
