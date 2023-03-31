@@ -9,6 +9,12 @@ class Comment extends Model
 {
     use HasFactory;
     protected $table = 'comments';
-    protected $fillable = ['add_id','user_id','owner_id','comment_msg','comment_status','commenter'];
+    protected $fillable = [
+        'add_id',
+        'comment_msg',
+        'comment_to',
+        'comment_from',
+        'seen_flag',
+    ];
     protected $primaryKey = 'id';
 }

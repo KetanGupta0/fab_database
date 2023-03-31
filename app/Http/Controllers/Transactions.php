@@ -8,10 +8,11 @@ use App\Models\PointTransaction;
 
 class Transactions extends Controller
 {
-    public function redeemPoints(Request $request){     // Under testing phase
+    public function redeemPoints(Request $request)
+    {     // Under testing phase
         $request->validate([
             'amount' => 'required|numeric',
-        ],[
+        ], [
             'amount.required' => 'You must specify some amount!',
             'amount.numeric' => 'Use numeric values only!'
         ]);
@@ -22,17 +23,15 @@ class Transactions extends Controller
 
         // Checking user
         $user = Userlist::find($uid);
-        if($user){      // If exists
+        if ($user) {      // If exists
             $availablePoints = $user->points;   // Update $availablePoints from userlist table (col: points)
-        }
-        else{           // If not exists
+        } else {           // If not exists
             return response()->json('nouser');
         }
 
-        if($availablePoints < $amount){     // If user have not sufficient points
+        if ($availablePoints < $amount) {     // If user have not sufficient points
             return redirect()->json('insufficient');
-        }
-        else{                               // If user have sufficient points
+        } else {                               // If user have sufficient points
             $availablePoints = $availablePoints - $amount;      // Deducting specified amount
 
             // Updating user's total points
@@ -41,7 +40,7 @@ class Transactions extends Controller
             ]);
 
             // Checking point updation result if failed
-            if(!$result){
+            if (!$result) {
                 return redirect()->json('fail');
             }
 
@@ -53,10 +52,9 @@ class Transactions extends Controller
             ]);
 
             // Confirm and send response for new transaction record
-            if($result){
+            if ($result) {
                 return redirect()->json('success');
-            }
-            else{
+            } else {
                 return redirect()->json('fail');
             }
         }

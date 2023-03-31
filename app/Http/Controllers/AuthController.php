@@ -10,6 +10,8 @@ use App\Models\State;
 use App\Models\City;
 use Illuminate\Support\Facades\Session;
 
+use function PHPUnit\Framework\returnSelf;
+
 class AuthController extends Controller
 {
     // Fetch country code
@@ -209,7 +211,7 @@ class AuthController extends Controller
     }
 
     // Password update process
-    public function updatePassword(Request $request)
+    public function resetPassword(Request $request)
     {         // Tested and working
         $request->validate([
             'user_pwd1' => 'required|between:8,16',
@@ -267,6 +269,70 @@ class AuthController extends Controller
             ]);
         } else {
             return response()->json(['sorry' => "Sorry we can't complete your profile right now!"]);
+        }
+    }
+
+    public function updateName(Request $request){
+        $request->validate([
+            'name' => 'required'
+        ],[
+            'name.required' => 'Name Field is required!'
+        ]);
+        $uid = $request->uid;
+        $name = $request->name;
+
+        $user = Userlist::find($uid);
+
+        $user->user_name = $name;
+        $result = $user->update();
+
+        if($result){
+            return response()->json($name);
+        }
+        else{
+            return response()->json('fail');
+        }
+    }
+
+    public function updatePassword(Request $request){
+        $request->validate([
+            'currentPwd' => 'required',
+            'newPwd' => 'required',
+            'confirmPwd' => 'required'
+        ],[
+            'currentPwd.required' => 'Current Password is required!',
+            'newPwd.required' => 'New Password is required!',
+            'confirmPwd.required' => 'Confirm Password is required!'
+        ]);
+
+        $uid = $request->uid;
+        $currentPassword = $request->currentPwd;
+        $newPassowrd = $request->newPwd;
+        $confirmPwd = $request->confirmPwd;
+
+        // return response()->json($confirmPwd);
+
+        if($confirmPwd != $newPassowrd){
+            return response()->json('Confirm password should be same as new password!!');
+        }
+
+        $check = Userlist::find($uid);
+
+        if($check->user_password == $currentPassword){
+            if($check->user_password == $newPassowrd){
+                return response()->json('Current password is same as new password!!');
+            }
+            $check->user_password = $newPassowrd;
+            $result = $check->update();
+            if($result){
+                return response()->json('success');
+            }
+            else{
+                return response()->json('fail');
+            }
+        }
+        else{
+            return response()->json('wrongpwd');
         }
     }
 }

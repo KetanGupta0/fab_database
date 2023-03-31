@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AddController;
 use App\Http\Controllers\Transactions;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\WishlistController;
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
@@ -33,9 +34,11 @@ Route::post('login',[AuthController::class,'userLogin']);
 Route::post('logout',[AuthController::class,'logoutUser']);
 Route::post('register',[AuthController::class,'registration']);
 Route::post('reset',[AuthController::class,'resetPasswordValidation']);
-Route::post('setpassword',[AuthController::class,'updatePassword']);
+Route::post('setpassword',[AuthController::class,'resetPassword']);
 Route::post('verify',[AuthController::class,'verifyOTP']);
 Route::post('complete-profile',[AuthController::class,'profileComplition']);
+Route::post('update-name',[AuthController::class,'updateName']);
+Route::post('update-password',[AuthController::class,'updatePassword']);
 
 // Categories and subcategories
 Route::get('country',[AuthController::class,'countryCode']);
@@ -55,10 +58,14 @@ Route::post('fetch-ads',[AddController::class,'fetchAds']);
 // Route::post('storeImg',[AddController::class,'storeBlobData']);
 Route::post('aiduid',[AddController::class,'imageAidUid']);
 
+// Comment Routes
 Route::post('make-comment',[AddController::class,'adsComments']);
-Route::post('display-comment',[AddController::class,'displayAdsComments']);
 Route::post('fetch-comment',[AddController::class,'fetchAdsComments']);
-Route::post('reply-comment',[AddController::class,'replyAdsComments']);
+Route::get('fetch-comment',[AddController::class,'fetchAdsComments']);
+Route::post('fetch-owner-comment',[AddController::class,'fetchOwnerComment']);
+Route::post('seen-comment',[AddController::class,'commentSeenChange']);
+// Route::post('display-comment',[AddController::class,'displayAdsComments']);
+// Route::post('reply-comment',[AddController::class,'replyAdsComments']);
 
 // Transaction Routes
 Route::post('redeem-points',[Transactions::class,'redeemPoints']);
@@ -72,14 +79,17 @@ Route::get('adds',[AddController::class,'displayAds']);
 Route::post('adds',[AddController::class,'displayAds']);
 Route::get('fetch-ads',[AddController::class,'fetchAds']);
 Route::get('test',[AddController::class,'test']);
+Route::post('fetch-logged-ads',[AddController::class,'fetchLoggedAds']);
 
 // Chat to admin routes
 Route::post('admin/send-message',[ChatController::class,'messageSendToAdmin']);
 Route::post('admin/load-message',[ChatController::class,'loadAllChatsFromAdmin']);
 Route::post('admin/change-seen-flag',[ChatController::class,'adminChatSeenFlagChange']);
 
-// Product chat routes
-
+// Wishlist routes
+Route::post('add-to-favorites',[WishlistController::class,'addToWishlist']);
+Route::post('remove-from-favorites',[WishlistController::class,'removeFromWishlist']);
+Route::post('favorites',[WishlistController::class,'fetchUserWishList']);
 
 // Unknown Routes
 // Route::get('showForm',[AddController::class,'showForm']);
