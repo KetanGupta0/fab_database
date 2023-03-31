@@ -335,17 +335,6 @@ class AddController extends Controller
         return response()->json($dataArray);
     }
 
-    public function commentSeenChange(Request $request){
-        $unseenMessages = Comment::where('msg_from', '=', 0)
-            ->where('comment_to', '=', $request->uid)
-            ->where('seen_flag', '=', 0)
-            ->get();
-        foreach ($unseenMessages as $msg) {
-            $msg->seen_flag = 1;
-            $msg->update();
-        }
-    }
-
     public function fetchAds(Request $request) {
         $clickedCategoryId = $request->cid;
         $clickedCategoryId = 1;
