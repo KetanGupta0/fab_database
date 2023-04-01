@@ -80,12 +80,20 @@ class AuthController extends Controller
         $request->validate([
             'user_mob' => 'required|numeric',
         ]);
+        $refcode = 0;
         $reference = Userlist::where('referral', '=', $request->referral)->first();
         if (!$request->referral == '') {
             if (!$reference) {
                 return response()->json('wrongref');
             }
+            else{
+                $refcode = 1;
+            }
         }
+        else{
+            $refcode = 2;
+        }
+        
 
         $user = Userlist::where('user_mob', '=', $request->user_mob)->first();
         $otp = rand(1000, 9999);
@@ -117,8 +125,8 @@ class AuthController extends Controller
 
                 $uid = Userlist::where('phonecode', '=', $request->phonecode)
                     ->where('user_mob', '=', $request->user_mob)
-                    ->where('usercode', '=', $otp)->first();
-                $data = [$request->phonecode, $request->user_mob, $otp, $uid];
+                    ->where('user_code', '=', $otp)->first();
+                $data = [$request->phonecode, $request->user_mob, $otp, $uid, $refcode];
                 return response()->json($data);
             }
         }
